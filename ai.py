@@ -90,35 +90,53 @@ def black_minimax(game, turns):
     moves = move_list(game, Color.BLACK)
     max_score = -sys.maxsize - 1
     best_moves = []
+
     for i in range(0, len(moves)):
+        # Create coordinates for the piece's potential new location
         new_y = moves[i][1][0]
         new_x = moves[i][1][1]
+
+        # Store the piece's current location (before the move)
         current_piece = moves[i][0]
         old_y = current_piece.column
         old_x = current_piece.row
+
+        # Temporarily change the piece's location
         current_piece.column = new_y
         current_piece.row = new_x
+
+        # Check if an enemy piece is currently in the square you would like to move to
         old_piece = game.board[new_y][new_x]
         removed = False
         if old_piece is not None and old_piece in game.white_pieces:
             game.white_pieces.remove(old_piece)
             removed = True
-        elif old_piece is not None:
-            i = 0
+
+        # Move the piece on the board
         game.board[new_y][new_x] = current_piece
+
+        # Find the best next move AFTER this move
         next_move = minimax_helper(game, turns - 1, False)
+
+        # If the board state is better than our current board state, make it our new best move
         if next_move[0] == max_score:
             best_moves.append([next_move[0], current_piece, moves[i]])
         if next_move[0] > max_score:
             max_score = next_move[0]
             best_moves = [[next_move[0], current_piece, moves[i]]]
+
+        # Move the piece back to where it belongs
         current_piece.column = old_y
         current_piece.row = old_x
+
+        # If we removed a piece, add it back
         if old_piece is not None and removed:
             game.white_pieces.append(old_piece)
         game.board[old_y][old_x] = current_piece
         if removed or old_piece is None:
             game.board[new_y][new_x] = old_piece
+
+    # If there are multiple best removes, randomly select one
     if len(best_moves) > 1:
         return best_moves[randrange(len(best_moves))]
     return best_moves[0]
@@ -129,35 +147,52 @@ def white_minimax(game, turns):
     moves = move_list(game, Color.WHITE)
     min_score = sys.maxsize
     best_moves = []
+
     for i in range(0, len(moves)):
+        # Create coordinates for the piece's potential new location
         new_y = moves[i][1][0]
         new_x = moves[i][1][1]
+
+        # Store the piece's current location (before the move)
         current_piece = moves[i][0]
         old_y = current_piece.column
         old_x = current_piece.row
+
+        # Temporarily change the piece's location
         current_piece.column = new_y
         current_piece.row = new_x
+
+        # Check if an enemy piece is currently in the square you would like to move to
         old_piece = game.board[new_y][new_x]
         removed = False
         if old_piece is not None and old_piece in game.black_pieces:
             game.black_pieces.remove(old_piece)
             removed = True
-        elif old_piece is not None:
-            i = 0
+        # Move the piece on the board
         game.board[new_y][new_x] = current_piece
+
+        # Find the best next move AFTER this move
         next_move = minimax_helper(game, turns - 1, True)
+
+        # If the board state is better than our current board state, make it our new best move
         if next_move[0] == min_score:
             best_moves.append([next_move[0], current_piece, moves[i]])
         if next_move[0] < min_score:
             min_score = next_move[0]
             best_moves = [[next_move[0], current_piece, moves[i]]]
+
+        # Move the piece back to where it belongs
         current_piece.column = old_y
         current_piece.row = old_x
+
+        # If we removed a piece, add it back
         if old_piece is not None and removed:
             game.black_pieces.append(old_piece)
         game.board[old_y][old_x] = current_piece
         if removed or old_piece is None:
             game.board[new_y][new_x] = old_piece
+
+    # If there are multiple best removes, randomly select one
     if len(best_moves) > 1:
         return best_moves[randrange(len(best_moves))]
     return best_moves[0]
