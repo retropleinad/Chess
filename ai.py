@@ -43,7 +43,7 @@ def rand_turn(game, screen):
 # Double check colors are right
 # First index returns the value, second index returns the piece, third index returns the move
 def mini_max(game, turns, screen):
-    move = minimax_helper(game, turns, True)
+    move = minimax_helper(game, turns, True, alpha=-sys.maxsize - 1, beta=sys.maxsize)
     game.move_piece(screen, piece=move[1], position=move[2][1])
     game.turn = Color.WHITE
     game.player_move = True
@@ -71,25 +71,26 @@ def mini_max(game, turns, screen):
 #       g.) Place the old piece back on the board
 # Also change pieces' internal coords before and after the recursive call
 # Base case: return the score and the piece/move combo
-def minimax_helper(game, turns, maximize):
+def minimax_helper(game, turns, maximize, alpha, beta):
     if turns == 0 or game.in_checkmate:
         current_score = basic_eval(game.white_pieces, game.black_pieces)
         return [current_score]
     if maximize:
-        return black_minimax(game, turns)
+        return black_minimax(game, turns, alpha=alpha, beta=beta)
     else:
-        return white_minimax(game, turns)
-
-
-iterator = 0
+        return white_minimax(game, turns, alpha=alpha, beta=beta)
 
 
 # Potential problem: evaluating score before base case but probably not
 # Black tries to maximize
-def black_minimax(game, turns):
+def black_minimax(game, turns, alpha, beta):
     moves = move_list(game, Color.BLACK)
     max_score = -sys.maxsize - 1
     best_moves = []
+
+    # Alpha beta pruning eval
+    if beta < alpha:
+        return [max_score]
 
     for i in range(0, len(moves)):
         # Create coordinates for the piece's potential new location
@@ -116,7 +117,7 @@ def black_minimax(game, turns):
         game.board[new_y][new_x] = current_piece
 
         # Find the best next move AFTER this move
-        next_move = minimax_helper(game, turns - 1, False)
+        next_move = minimax_helper(game, turns - 1, False, alpha=max_score, beta=beta)
 
         # If the board state is better than our current board state, make it our new best move
         if next_move[0] == max_score:
@@ -143,7 +144,7 @@ def black_minimax(game, turns):
 
 
 # White tries to minimize
-def white_minimax(game, turns):
+def white_minimax(game, turns, alpha, beta):
     moves = move_list(game, Color.WHITE)
     min_score = sys.maxsize
     best_moves = []
@@ -172,7 +173,7 @@ def white_minimax(game, turns):
         game.board[new_y][new_x] = current_piece
 
         # Find the best next move AFTER this move
-        next_move = minimax_helper(game, turns - 1, True)
+        next_move = minimax_helper(game, turns - 1, True, alpha=alpha, beta=min_score)
 
         # If the board state is better than our current board state, make it our new best move
         if next_move[0] == min_score:

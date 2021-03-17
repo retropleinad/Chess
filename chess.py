@@ -604,7 +604,7 @@ def take_turn(screen, game, selected_piece):
     if not game.player_move and not game.in_checkmate:
         global last_screen
         last_screen = screen.copy()
-        ai.mini_max(game, 3, screen)
+        ai.mini_max(game, 4, screen)
     else:
         return piece
 
