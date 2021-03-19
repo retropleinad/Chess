@@ -90,7 +90,7 @@ def black_minimax(game, turns, alpha, beta):
 
     # Alpha beta pruning eval
     if beta < alpha:
-        return [max_score]
+        return [None]
 
     for i in range(0, len(moves)):
         # Create coordinates for the piece's potential new location
@@ -178,7 +178,7 @@ def white_minimax(game, turns, alpha, beta):
         # If the board state is better than our current board state, make it our new best move
         if next_move[0] == min_score:
             best_moves.append([next_move[0], current_piece, moves[i]])
-        if next_move[0] < min_score:
+        if next_move[0] is not None and next_move[0] < min_score:
             min_score = next_move[0]
             best_moves = [[next_move[0], current_piece, moves[i]]]
 
