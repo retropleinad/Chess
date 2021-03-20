@@ -73,7 +73,13 @@ def mini_max(game, turns, screen):
 # Base case: return the score and the piece/move combo
 def minimax_helper(game, turns, maximize, alpha, beta):
     if turns == 0 or game.in_checkmate:
-        current_score = basic_eval(game.white_pieces, game.black_pieces)
+        if game.turns_passed < 20:
+            current_score = early_eval(game.white_pieces, game.black_pieces)
+        else:
+            if len(game.black_pieces) > 8 and len(game.white_pieces) > 8:
+                current_score = middle_eval(game, game.white_pieces, game.black_pieces)
+            else:
+                current_score = endgame_eval(game.white_pieces, game.black_pieces)
         return [current_score]
     if maximize:
         return black_minimax(game, turns, alpha=alpha, beta=beta)
@@ -235,28 +241,28 @@ def early_eval(white_pieces, black_pieces):
     for piece in white_pieces:
         total_value -= piece.val
         if isinstance(piece, Bishop) and piece.column != 0:
-            total_value -= .1
+            total_value -= .01
         if isinstance(piece, Knight) and piece.column != 0:
-            total_value -= .1
+            total_value -= .01
         if piece.moved:
-            total_value -= .1
+            total_value -= .01
         if 1 < piece.row < 6:
-            total_value -= .1
+            total_value -= .01
         if piece.column < 6:
-            total_value -= .1
+            total_value -= .01
     for piece in black_pieces:
         total_value += piece.val
         if isinstance(piece, Bishop) and piece.column != 0:
             print(piece.val)
-            total_value += .1
+            total_value += .01
         if isinstance(piece, Knight) and piece.column != 0:
-            total_value += .1
+            total_value += .01
         if piece.moved:
-            total_value += .1
+            total_value += .01
         if 1 < piece.row < 6:
-            total_value += .1
+            total_value += .01
         if piece.column > 1:
-            total_value += .1
+            total_value += .01
     return total_value
 
 
@@ -270,13 +276,13 @@ def middle_eval(game, white_pieces, black_pieces):
         moves = len(piece.available_moves(game.board))
         total_value -= moves * .05
         if isinstance(piece, Pawn):
-            total_value -= 1
+            total_value -= .05
     for piece in black_pieces:
         total_value += piece.val
         moves = len(piece.available_moves(game.board))
         total_value += moves * .05
         if isinstance(piece, Pawn):
-            total_value += 1
+            total_value += .05
     return total_value
 
 
@@ -286,9 +292,9 @@ def endgame_eval(white_pieces, black_pieces):
     for piece in white_pieces:
         total_value -= piece.val
         if isinstance(piece, Pawn):
-            total_value += 1.5
+            total_value -= .1
     for piece in black_pieces:
         total_value += piece.val
         if isinstance(piece, Pawn):
-            total_value += 1.5
+            total_value += .1
     return total_value
